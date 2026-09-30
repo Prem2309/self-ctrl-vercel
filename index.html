@@ -428,6 +428,11 @@ body[data-v=app] header{display:none}body[data-v=app] main{max-width:none;paddin
     return {};
   }
 
+  // Make these helpers visible to the main app script (it runs outside this block)
+  window.getActiveKey = getActiveKey;
+  window.getActiveModel = getActiveModel;
+  window.hasServerKey = hasServerKey;
+
   window.claude = {
     use: async function(service) {
       if (service === 'downloads') {
@@ -531,7 +536,7 @@ return ph('My Twin','A structured, evidence-backed model of what I currently und
 function vSolve(){if(cur)return resultView(S.problems.find(p=>p.id===cur));const EXS=["I have two internship offers. Which fits my goals?","I need a laptop for data science under ₹70,000","I have three deadlines this week","Should I learn a new skill or deepen what I know?"];
 const curKey=getActiveKey();
 const curModel=getActiveModel();
-const hasKey=Boolean(curKey);
+const hasKey=Boolean(curKey)||hasServerKey();
 return ph('Solve a problem','Describe it the way you would tell a friend. I’ll use your Twin and Google Gemini to evaluate it.')+`<div class="cmp"><div class="card big"><label for="ptext" style="margin-top:0">What are you dealing with?</label><textarea id="ptext" placeholder="I have two internship offers…">${esc(prefill)}</textarea><div class="row" style="margin:8px 0"><button class="btn" data-act="analyze">Analyze</button><span class="tag" style="font-size:0.8rem">${hasKey?'⚡ Gemini AI Connected':'Offline Simulation Mode'}</span></div><div>${EXS.map(t=>`<button class="chp" style="cursor:pointer" data-act="fill" data-t="${esc(t)}">${esc(t)}</button>`).join('')}</div><ol id="prog" aria-live="polite"></ol><div id="clar"></div></div>
 <aside class="card"><h3>What I’ll use</h3><p><b>Twin ${S.versions.at(-1).label}</b><br><small class="mut">${S.twin.goals.length} goals · ${S.twin.priorities.length} priorities · ${S.twin.constraints.length} constraints</small></p><p><b>Intelligence</b><br><small class="mut">${hasKey?'Google Gemini Model: '+curModel:'Offline Heuristic Engine'}</small></p><p><b>Memory</b><br><small class="mut">Up to 5 relevant, active memories</small></p></aside></div>`}
 async function analyze(extra){const raw=($('#ptext')?.value||'').trim();if(!raw)return;const text=extra?raw+'\n[Answer to clarifying question: '+extra+']':raw,steps=['Reading your Twin and memory','Understanding your problem with Gemini','Evaluating constraints and scenarios','Comparing options and trade-offs','Building your personalized analysis'];
